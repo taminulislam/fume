@@ -35,12 +35,6 @@ FUME is a multi-task deep learning framework for automated rumen acidosis detect
 - **pH Levels:** 5.0, 5.3, 5.6, 5.9, 6.2, 6.5
 - **Image Size:** 640×480 grayscale
 
-### Class Distribution Challenge
-⚠️ **Severe Imbalance:** Transitional class is only **2.6%** of dataset
-
-**Solution:** Focal Loss with α=[1.0, 8.0, 1.2] + weighted random sampling
-
----
 
 ## 🏗️ Model Architecture
 
@@ -233,7 +227,7 @@ model:
 
 training:
   batch_size: 8
-  num_epochs: 100
+  num_epochs: 50
   learning_rate: 0.001
   optimizer: AdamW
   scheduler: CosineAnnealingLR
@@ -251,72 +245,3 @@ augmentation:
   brightness_contrast: 0.2
   gaussian_noise: 0.3
 ```
-
----
-
-## 📊 Expected Results
-
-| Model | mIoU | Gas IoU | Balanced Acc | Macro F1 |
-|-------|------|---------|--------------|----------|
-| Seg-Only | 78% | 82% | - | - |
-| Cls-Only | - | - | 65% | 0.58 |
-| Gas-Aware | - | - | 68% | 0.62 |
-| Early Fusion | 75% | 78% | 70% | 0.65 |
-| **FUME (Ours)** | **82%** | **85%** | **75%** | **0.72** |
-
-*(These are projected values - actual results depend on training)*
-
----
-
-## 🎓 Citation
-
-If you use this code or dataset, please cite:
-
-```bibtex
-@inproceedings{fume2025,
-  title={FUME: Cross-Modal Fusion for Gas Emission Analysis},
-  author={Your Name},
-  booktitle={CVPR},
-  year={2025}
-}
-```
-
----
-
-## 📝 License
-
-MIT License - see [LICENSE](LICENSE) for details
-
----
-
-## 🙏 Acknowledgments
-
-- ResNet-50 backbone from torchvision
-- Albumentations for data augmentation
-- Weights & Biases for experiment tracking
-
----
-
-## 📧 Contact
-
-For questions or collaboration:
-- Email: your.email@example.com
-- GitHub Issues: [Submit an issue](../../issues)
-
----
-
-## 🛠️ Development Status
-
-✅ Data pairing module
-✅ Dataset loader with modality dropout
-✅ FUME model architecture
-✅ 5 baseline models
-✅ Loss functions (Focal + Multi-task)
-⏳ Training framework (in progress)
-⏳ Evaluation metrics
-⏳ Visualization tools
-⏳ Pretrained weights
-
----
-
-**Built with ❤️ for advancing agriculture and animal health through AI**
