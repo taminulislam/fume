@@ -1,0 +1,175 @@
+# FUME-FastSCNN Configuration
+# Fast-SCNN with Cross-Modal Attention for Dual-Gas Acidosis Detection
+
+# Experiment
+experiment:
+  name: "FUME-FastSCNN"
+  project: "FUME-Acidosis"
+  tags: ["fastscnn", "dual-gas", "multi-task", "cross-attention"]
+  seed: 42
+  use_wandb: true
+  wandb_entity: null  # Your W&B username/team
+
+# Model
+model:
+  name: "FUMEFastSCNN"
+  num_classes: 3  # Healthy, Transitional, Acidotic
+  num_seg_classes: 3  # Background, Tube, Gas
+  shared_encoder: true  # True for <3M params, False for ~4M params
+  pretrained: false  # No ImageNet pretraining for Fast-SCNN
+
+# Data
+data:
+  dataset_root: "../dataset"  # Path to Acidosis/dataset
+  paired_train_csv: "./data/paired_train_annotations.csv"
+  paired_val_csv: "./data/paired_val_annotations.csv"
+  paired_test_csv: "./data/paired_test_annotations.csv"
+
+  image_size: [640, 480]  # [width, height]
+
+  # Class information
+  class_names: ["Healthy", "Transitional", "Acidotic"]
+  seg_class_names: ["Background", "Tube", "Gas"]
+
+  # Data augmentation
+  augmentation:
+    horizontal_flip: 0.5
+    rotate_limit: 15
+    shift_scale_rotate:
+      shift_limit: 0.1
+      scale_limit: 0.15
+      rotate_limit: 15
+      p: 0.5
+    brightness_contrast:
+      brightness_limit: 0.2
+      contrast_limit: 0.2
+      p: 0.5
+    gaussian_noise:
+      var_limit: [10.0, 50.0]
+      p: 0.3
+    gaussian_blur:
+      blur_limit: [3, 7]
+      p: 0.3
+    random_gamma:
+      gamma_limit: [80, 120]
+      p: 0.3
+
+  # Modality dropout
+  modality_dropout: 0.2  # Randomly drop one gas type during training
+
+  # Return original samples only (for testing)
+  return_original: false
+
+# Training
+training:
+  batch_size: 8
+  num_epochs: 50
+  num_workers: 4
+  pin_memory: true
+
+  # Optimizer
+  optimizer:
+    type: "AdamW"
+    lr: 0.001
+    weight_decay: 0.0001
+    betas: [0.9, 0.999]
+
+  # Learning rate scheduler
+  scheduler:
+    type: "CosineAnnealingLR"
+    T_max: 50  # num_epochs
+    eta_min: 0.00001
+
+  # Loss weights
+  loss:
+    seg_weight: 1.0
+    cls_weight: 1.0
+
+    # Focal loss parameters
+    focal_gamma: 2.0
+
+    # Class weights for classification [Healthy, Transitional, Acidotic]
+    cls_alpha: [1.0, 8.0, 1.2]  # Higher weight for Transitional (2.6% of data)
+
+    # Segmentation loss type
+    use_focal_dice: true  # True for Focal+Dice, False for Focal only
+
+  # Gradient clipping
+  grad_clip: 1.0
+
+  # Mixed precision training
+  use_amp: true  # Automatic Mixed Precision (FP16)
+
+  # Early stopping
+  early_stopping:
+    patience: 15
+    min_delta: 0.001
+    monitor: "val_balanced_acc"  # Metric to monitor
+    mode: "max"  # 'max' for accuracy, 'min' for loss
+
+  # Checkpointing
+  checkpoint:
+    save_freq: 5  # Save every N epochs
+    save_best: true  # Save best model
+    save_last: true  # Save last model
+    monitor: "val_balanced_acc"
+    mode: "max"
+
+# Validation
+validation:
+  val_freq: 1  # Validate every N epochs
+  batch_size: 1  # Typically 1 for segmentation
+
+# Testing
+testing:
+  batch_size: 1
+  save_predictions: true
+  visualize: true
+  test_time_augmentation: false  # TTA for ensemble prediction
+
+# Logging
+logging:
+  log_freq: 50  # Log every N iterations
+  log_images_freq: 200  # Log images every N iterations
+  num_log_images: 4  # Number of images to log
+
+# Directories
+directories:
+  checkpoints: "./checkpoints"
+  logs: "./logs"
+  results: "./results"
+  visualizations: "./visualizations"
+
+# Metrics to track
+metrics:
+  # Segmentation
+  segmentation:
+    - "mean_iou"
+    - "mean_dice"
+    - "pixel_accuracy"
+    - "iou_gas"  # Most important: Gas IoU
+
+  # Classification
+  classification:
+    - "accuracy"
+    - "balanced_accuracy"  # Primary metric
+    - "macro_f1"
+    - "weighted_f1"
+    - "cohens_kappa"
+    - "Healthy_f1"
+    - "Transitional_f1"  # Watch this closely (hardest class)
+    - "Acidotic_f1"
+
+  # Multi-task
+  multi_task:
+    - "joint_score"  # Combination of seg + cls
+
+# Weighted sampling for class imbalance
+weighted_sampling: true  # Oversample Transitional class
+
+# Resume training
+resume:
+  enabled: false
+  checkpoint_path: null
+  resume_optimizer: true
+  resume_scheduler: true
