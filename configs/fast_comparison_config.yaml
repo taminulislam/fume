@@ -1,0 +1,163 @@
+# Fast Comparison Training Configuration
+# Optimized for RAPID training of comparison models (15 epochs)
+# Goal: Quick comparison across multiple models
+
+# Experiment
+experiment:
+  name: "Fast-Comparison"
+  project: "FUME-Comparison"
+  tags: ["fast-training", "comparison", "15-epochs"]
+  seed: 42
+  use_wandb: true
+  wandb_entity: null
+
+# Model (will be overridden when training different models)
+model:
+  name: "BiSeNetV2"  # Change this for different models
+  num_classes: 3
+  num_seg_classes: 3
+  shared_encoder: true
+
+# Data
+data:
+  dataset_root: "../dataset"
+  paired_train_csv: "./data/paired_train_annotations.csv"
+  paired_val_csv: "./data/paired_val_annotations.csv"
+  paired_test_csv: "./data/paired_test_annotations.csv"
+
+  image_size: [640, 480]
+
+  class_names: ["Healthy", "Transitional", "Acidotic"]
+  seg_class_names: ["Background", "Tube", "Gas"]
+
+  # Minimal augmentation for fast training
+  augmentation:
+    horizontal_flip: 0.5
+    rotate_limit: 10
+    shift_scale_rotate:
+      shift_limit: 0.05
+      scale_limit: 0.1
+      rotate_limit: 10
+      p: 0.3
+    brightness_contrast:
+      brightness_limit: 0.15
+      contrast_limit: 0.15
+      p: 0.3
+    gaussian_noise:
+      var_limit: [10.0, 30.0]
+      p: 0.2
+    gaussian_blur:
+      blur_limit: [3, 5]
+      p: 0.2
+    random_gamma:
+      gamma_limit: [85, 115]
+      p: 0.2
+
+  # Reduced modality dropout for faster convergence
+  modality_dropout: 0.1
+  return_original: false
+
+# Training - OPTIMIZED FOR SPEED
+training:
+  batch_size: 16  # Increased from 8 for faster training
+  num_epochs: 15  # FAST TRAINING MODE
+  num_workers: 8  # Increased for faster data loading
+  pin_memory: true
+
+  # Optimizer - Higher learning rate for fast convergence
+  optimizer:
+    type: "AdamW"
+    lr: 0.002  # 2x higher learning rate
+    weight_decay: 0.0001
+    betas: [0.9, 0.999]
+
+  # Learning rate scheduler - optimized for 15 epochs
+  scheduler:
+    type: "CosineAnnealingLR"
+    T_max: 15
+    eta_min: 0.00001
+
+  # Loss weights
+  loss:
+    seg_weight: 1.0
+    cls_weight: 1.0
+    focal_gamma: 2.0
+    cls_alpha: [1.0, 8.0, 1.2]
+    use_focal_dice: true
+
+  # Gradient clipping
+  grad_clip: 1.0
+
+  # Mixed precision for speed
+  use_amp: true
+
+  # Early stopping - disabled for consistent 15 epoch comparison
+  early_stopping:
+    patience: 15  # Effectively disabled
+    min_delta: 0.001
+    monitor: "val_balanced_acc"
+    mode: "max"
+
+  # Checkpointing - save only best and last
+  checkpoint:
+    save_freq: 15  # Only save at end
+    save_best: true
+    save_last: true
+    monitor: "val_balanced_acc"
+    mode: "max"
+
+# Validation
+validation:
+  val_freq: 1  # Validate every epoch
+  batch_size: 1
+
+# Testing
+testing:
+  batch_size: 1
+  save_predictions: true
+  visualize: true
+  test_time_augmentation: false
+
+# Logging - reduced frequency for speed
+logging:
+  log_freq: 100  # Less frequent logging
+  log_images_freq: 500
+  num_log_images: 2  # Fewer images to log
+
+# Directories
+directories:
+  checkpoints: "./checkpoints_comparison"
+  logs: "./logs_comparison"
+  results: "./results_comparison"
+  visualizations: "./visualizations_comparison"
+
+# Metrics
+metrics:
+  segmentation:
+    - "mean_iou"
+    - "mean_dice"
+    - "pixel_accuracy"
+    - "iou_gas"
+
+  classification:
+    - "accuracy"
+    - "balanced_accuracy"
+    - "macro_f1"
+    - "weighted_f1"
+    - "cohens_kappa"
+    - "Healthy_f1"
+    - "Transitional_f1"
+    - "Acidotic_f1"
+
+  multi_task:
+    - "joint_score"
+
+# Weighted sampling
+weighted_sampling: true
+
+# Resume training
+resume:
+  enabled: false
+  checkpoint_path: null
+  resume_optimizer: true
+  resume_scheduler: true
