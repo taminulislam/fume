@@ -21,7 +21,6 @@ FUME is a multi-task deep learning framework for automated rumen acidosis detect
 ✨ **Multi-Task Learning** - Joint segmentation and classification
 ✨ **Modality Dropout** - Robust to missing gas type data
 ✨ **Class Imbalance Handling** - Focal Loss + weighted sampling
-✨ **Comprehensive Baselines** - 5 baseline models for rigorous evaluation
 
 ---
 
@@ -61,33 +60,23 @@ Input: Paired CO2 and CH4 Frames (640×480×1 each)
 ```
 
 ### Model Variants
-- **FUME (Main):** Dual-stream with cross-attention
-- **FUME-Shared:** Shared encoder weights (ablation)
-- **FUME-NoAttention:** Simple concatenation fusion (ablation)
-
----
-
-## 🎯 Baseline Models
-
-1. **Segmentation-Only:** Pure segmentation (establish ceiling)
-2. **Classification-Only:** Pure classification (establish ceiling)
-3. **Gas-Aware Classifier:** Classification with gas type embedding
-4. **Early Fusion:** Concatenate CO2+CH4 before encoding
-5. **Traditional ML:** Random Forest on hand-crafted features
+- **FUME (Main):** Dual-stream ResNet-50 with cross-attention
+- **FUME-FastSCNN:** Lightweight Fast-SCNN backbone (~2.8M parameters)
 
 ---
 
 ## 📁 Project Structure
 
 ```
-Acidosis/FUME/
+fume/
 ├── data/
 │   ├── pairing.py              # CO2-CH4 sample pairing
 │   ├── dataset.py              # PyTorch dataset with modality dropout
 │   └── transforms.py           # Albumentations augmentation
 ├── models/
-│   ├── fume.py                 # Main FUME model
-│   ├── baselines.py            # 5 baseline models
+│   ├── fume.py                 # Main FUME model (ResNet-50)
+│   ├── fume_fastscnn.py        # FUME with Fast-SCNN backbone
+│   ├── fastscnn.py             # Fast-SCNN encoder
 │   ├── backbones.py            # ResNet-50 encoder
 │   ├── attention.py            # Cross-modal attention
 │   └── heads.py                # Seg & classification heads
@@ -99,14 +88,13 @@ Acidosis/FUME/
 │   ├── logger.py               # Weights & Biases integration
 │   └── visualization.py        # Plotting utilities
 ├── configs/
-│   ├── fume_config.yaml        # Main config
-│   ├── baseline_configs/       # Baseline experiment configs
-│   └── ablation_configs/       # Ablation study configs
+│   └── fume_config.yaml        # Model configuration
 ├── notebooks/
 │   ├── train_fume.ipynb        # Training notebook
 │   └── test_fume.ipynb         # Evaluation notebook
 ├── train.py                     # Training script
-├── test.py                      # Evaluation script
+├── test_models.py               # Evaluation script
+├── check_model_size.py          # Model parameter checker
 ├── environment.yml              # Conda environment
 └── requirements.txt             # Python dependencies
 ```
@@ -182,37 +170,23 @@ jupyter notebook notebooks/test_fume.ipynb
 
 ## 🧪 Ablation Studies
 
-### 1. Input Modality Ablation
-- CO2-only
-- CH4-only
-- CO2+CH4 early fusion
-- **CO2+CH4 dual-stream (FUME)** ← Expected best
-
-### 2. Multi-Task Learning Ablation
-- Classification only
-- Segmentation only
-- **Both (multi-task)** ← Expected best
-
-### 3. Fusion Strategy Ablation
+### 1. Fusion Strategy
 - Concatenation
 - Element-wise addition
 - **Cross-attention (FUME)** ← Expected best
 
-### 4. Backbone Ablation
-- ResNet-18, ResNet-50, ResNet-101
-- EfficientNet-B0
+### 2. Backbone Architecture
+- **ResNet-50 (FUME)** - High accuracy
+- **Fast-SCNN (FUME-FastSCNN)** - Lightweight (~2.8M params)
 
-### 5. Class Imbalance Handling
-- No weighting
-- Class-weighted loss
-- **Focal Loss (FUME)** ← Expected best
-- Oversampling
+### 3. Multi-Task Learning
+- Classification only
+- Segmentation only
+- **Both (multi-task)** ← Expected best
 
-### 6. pH Granularity
-- 3-class (Healthy/Trans/Acidotic)
-- 6-class (all pH levels)
-- 2-class (Healthy vs Acidotic)
-- Regression
+### 4. Encoder Sharing
+- Separate CO2/CH4 encoders
+- **Shared encoder weights** ← Parameter efficient
 
 ---
 
