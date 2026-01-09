@@ -1,7 +1,4 @@
-"""
-FUME Training Script
-Trains FUME-FastSCNN model for dual-gas acidosis detection
-"""
+
 
 import os
 import torch

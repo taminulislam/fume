@@ -1,8 +1,3 @@
-"""
-Task-specific heads for FUME
-- Segmentation Head (for gas mask prediction)
-- Classification Head (for pH class prediction)
-"""
 
 import torch
 import torch.nn as nn
@@ -10,10 +5,7 @@ import torch.nn.functional as F
 
 
 class SegmentationHead(nn.Module):
-    """
-    Segmentation head with decoder for pixel-level prediction
-    Uses simple decoder with skip connections
-    """
+
 
     def __init__(
         self,
@@ -39,14 +31,7 @@ class SegmentationHead(nn.Module):
         self.final_conv = nn.Conv2d(decoder_channels, num_classes, kernel_size=1)
 
     def forward(self, features: torch.Tensor, target_size: tuple = (480, 640)) -> torch.Tensor:
-        """
-        Args:
-            features: (B, C, H', W') encoded features
-            target_size: (H, W) output size
 
-        Returns:
-            seg_logits: (B, num_classes, H, W)
-        """
         x = self.decoder(features)
 
         # Upsample to target size
@@ -59,10 +44,7 @@ class SegmentationHead(nn.Module):
 
 
 class DeepLabV3PlusHead(nn.Module):
-    """
-    DeepLabV3+ style segmentation head with ASPP
-    More sophisticated decoder for better boundary precision
-    """
+
 
     def __init__(
         self,
@@ -102,15 +84,7 @@ class DeepLabV3PlusHead(nn.Module):
         low_level_features: torch.Tensor,
         target_size: tuple = (480, 640)
     ) -> torch.Tensor:
-        """
-        Args:
-            high_level_features: (B, C_high, H/32, W/32) from encoder layer4
-            low_level_features: (B, C_low, H/4, W/4) from encoder layer1
-            target_size: (H, W) output size
 
-        Returns:
-            seg_logits: (B, num_classes, H, W)
-        """
         # ASPP on high-level features
         x = self.aspp(high_level_features)
 

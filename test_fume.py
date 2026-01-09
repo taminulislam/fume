@@ -1,7 +1,3 @@
-"""
-FUME Evaluation Script
-Evaluates trained FUME-FastSCNN model on test set
-"""
 
 import os
 import sys

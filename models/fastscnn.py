@@ -1,10 +1,4 @@
-"""
-Fast-SCNN: Fast Semantic Segmentation Network
-Paper: https://arxiv.org/abs/1902.04502 (BMVC 2019)
 
-Adapted for FUME dual-gas emission analysis
-Total Parameters: ~1.1M per encoder (2.8M shared)
-"""
 
 import torch
 import torch.nn as nn

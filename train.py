@@ -1,7 +1,4 @@
-"""
-FUME Training Script
-Train FUME-FastSCNN and baseline models
-"""
+
 
 import torch
 import torch.nn as nn

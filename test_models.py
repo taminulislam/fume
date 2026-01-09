@@ -1,7 +1,4 @@
-"""
-Test script to verify all comparison models can be instantiated
-and count their parameters
-"""
+
 
 import torch
 from models import (

@@ -1,6 +1,3 @@
-# Fast Comparison Training Configuration
-# Optimized for RAPID training of comparison models (15 epochs)
-# Goal: Quick comparison across multiple models
 
 # Experiment
 experiment:

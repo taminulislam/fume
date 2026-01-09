@@ -1,7 +1,4 @@
-"""
-Visualization utilities for FUME
-Plotting training curves, segmentation results, confusion matrices
-"""
+
 
 import numpy as np
 import matplotlib.pyplot as plt

@@ -1,7 +1,4 @@
-"""
-Weights & Biases Logger for FUME
-Tracks experiments, metrics, and visualizations
-"""
+
 
 import wandb
 import torch

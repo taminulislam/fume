@@ -1,9 +1,4 @@
-"""
-FUME: Fused Unified Multi-gas Emission Network
-Cross-Modal Fusion for Gas Emission Analysis
 
-Main model architecture with dual-stream encoder and cross-modal attention
-"""
 
 import torch
 import torch.nn as nn
@@ -14,20 +9,7 @@ from .heads import DeepLabV3PlusHead, ClassificationHead
 
 
 class FUMEModel(nn.Module):
-    """
-    FUME: Multi-Modal Fusion Network for Acidosis Detection
-
-    Architecture:
-        Input: Paired CO2 and CH4 frames
-        ├── CO2 Stream: ResNet-50 Encoder
-        └── CH4 Stream: ResNet-50 Encoder
-            ↓
-        Cross-Modal Attention Fusion
-            ↓
-        Dual-Task Heads:
-        ├── Segmentation Head → CO2 mask + CH4 mask
-        └── Classification Head → pH class
-    """
+   
 
     def __init__(
         self,
@@ -36,13 +18,7 @@ class FUMEModel(nn.Module):
         pretrained: bool = True,
         use_deeplabv3plus: bool = True
     ):
-        """
-        Args:
-            num_classes: Number of pH classes (3: Healthy, Transitional, Acidotic)
-            num_seg_classes: Number of segmentation classes (3: background, tube, gas)
-            pretrained: Use ImageNet pretrained weights
-            use_deeplabv3plus: Use DeepLabV3+ decoder (True) or simple decoder (False)
-        """
+        
         super().__init__()
 
         self.num_classes = num_classes
@@ -82,18 +58,7 @@ class FUMEModel(nn.Module):
         ch4_frame: torch.Tensor,
         modality_mask: torch.Tensor
     ) -> Dict[str, torch.Tensor]:
-        """
-        Args:
-            co2_frame: (B, 1, H, W) CO2 thermal frames
-            ch4_frame: (B, 1, H, W) CH4 thermal frames
-            modality_mask: (B, 2) binary mask [use_co2, use_ch4]
 
-        Returns:
-            Dictionary with keys:
-                - cls_logits: (B, num_classes) classification logits
-                - co2_seg_logits: (B, num_seg_classes, H, W) CO2 segmentation
-                - ch4_seg_logits: (B, num_seg_classes, H, W) CH4 segmentation
-        """
         target_size = (co2_frame.shape[2], co2_frame.shape[3])  # (H, W)
 
         # Encode both streams
@@ -137,10 +102,7 @@ class FUMEModel(nn.Module):
 
 # Variant: Shared encoder weights
 class FUMEModelSharedEncoder(FUMEModel):
-    """
-    FUME variant with shared encoder weights for both CO2 and CH4 streams
-    Reduces parameters but may reduce modality-specific learning
-    """
+
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -151,10 +113,7 @@ class FUMEModelSharedEncoder(FUMEModel):
 
 # Variant: Without cross-attention (ablation)
 class FUMEModelNoAttention(nn.Module):
-    """
-    FUME variant without cross-attention
-    For ablation study: simple concatenation fusion
-    """
+
 
     def __init__(
         self,

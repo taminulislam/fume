@@ -1,8 +1,4 @@
-"""
-Metrics for FUME evaluation
-- Segmentation: IoU, Dice, Pixel Accuracy
-- Classification: Balanced Accuracy, F1, Confusion Matrix
-"""
+
 
 import torch
 import numpy as np

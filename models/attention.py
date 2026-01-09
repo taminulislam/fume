@@ -1,6 +1,4 @@
-"""
-Cross-Modal Attention Mechanisms for FUME
-"""
+
 
 import torch
 import torch.nn as nn
