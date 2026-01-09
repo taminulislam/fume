@@ -89,11 +89,10 @@ fume/
 │   └── visualization.py        # Plotting utilities
 ├── configs/
 │   └── fume_config.yaml        # Model configuration
-├── notebooks/
-│   ├── train_fume.ipynb        # Training notebook
-│   └── test_fume.ipynb         # Evaluation notebook
-├── train.py                     # Training script
-├── test_models.py               # Evaluation script
+├── train.py                     # Main training script
+├── train_fume.py                # FUME training script
+├── test_fume.py                 # FUME evaluation script
+├── test_models.py               # Model testing
 ├── check_model_size.py          # Model parameter checker
 ├── environment.yml              # Conda environment
 └── requirements.txt             # Python dependencies
@@ -129,20 +128,18 @@ python pairing.py
 
 ### 3. Training
 
-**Option A: Using Jupyter Notebook (Recommended)**
 ```bash
-jupyter notebook notebooks/train_fume.ipynb
-```
+# Using FUME training script
+python train_fume.py
 
-**Option B: Using Python Script**
-```bash
+# Or using main training script with config
 python train.py --config configs/fume_config.yaml
 ```
 
 ### 4. Evaluation
 
 ```bash
-jupyter notebook notebooks/test_fume.ipynb
+python test_fume.py
 ```
 
 ---
